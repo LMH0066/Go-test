@@ -11,7 +11,7 @@ CMonteCarlo::~CMonteCarlo()
 {
 }
 
-//³õÊ¼»¯temp_board
+//åˆå§‹åŒ–temp_board
 void CMonteCarlo::boardCopy()
 {
 	int i, j;
@@ -26,7 +26,8 @@ bool CMonteCarlo::isEye(PMove pMove, char temp_board[][BOARD_ROWS]) {
 	PMove temp = pMove;
 	if (temp_board[temp.x][temp.y] != 0)
 		return false;
-	//ÕâÀïÅĞ¶ÏÁË×óÓÒ£¬×óÉÏ£¬ÓÒÏÂ£¬ÉÏÏÂ¡£ÎÒ¾õµÃ²»Ì«ºÏÀí£¬Ó¦¸ÃÊÇ×óÉÏ£¬×óÏÂ£¬ÓÒÉÏ£¬ÓÒÏÂ
+	//è¿™é‡Œåˆ¤æ–­äº†å·¦å³ï¼Œå·¦ä¸Šï¼Œå³ä¸‹ï¼Œä¸Šä¸‹ã€‚æˆ‘è§‰å¾—ä¸å¤ªåˆç†ï¼Œåº”è¯¥æ˜¯å·¦ä¸Šï¼Œå·¦ä¸‹ï¼Œå³ä¸Šï¼Œå³ä¸‹
+	//æˆ‘è§‰å¾—éƒ½è¡Œï¼Œèƒ½è¾¾åˆ°åˆ¤æ–­å››ä¸ªå­é¢œè‰²ç›¸åŒçš„ç›®çš„
 	if (temp_board[temp.x - 1][temp.y] != temp_board[temp.x + 1][temp.y] &&
 		temp_board[temp.x - 1][temp.y] != BORDER &&
 		temp_board[temp.x + 1][temp.y] != BORDER)
@@ -68,7 +69,8 @@ void CMonteCarlo::haveEye()
 	PMove temp;
 	for (temp.x = 1; temp.x <= 9; temp.x++) {
 		for (temp.y = 1; temp.y <= 9; temp.y++) {
-			//ÒÑ¾­ÅĞ¶ÏÊÇÑÛÁËÎªÊ²Ã´»¹ÒªÅĞ¶ÏÉÏÏÂÊÇ·ñÎªÇ½£¿
+			//å·²ç»åˆ¤æ–­æ˜¯çœ¼äº†ä¸ºä»€ä¹ˆè¿˜è¦åˆ¤æ–­ä¸Šä¸‹æ˜¯å¦ä¸ºå¢™ï¼Ÿ
+                        //åªæ˜¯ä¸ºäº†å–è¿™ä¸ªçœ¼ä½å±äºå“ªä¸ªé¢œè‰²çš„æ£‹å­
 			if (isEye(temp, board)) {
 				if (temp_board[temp.x + 1][temp.y] != BORDER)
 					eye[temp_board[temp.x + 1][temp.y]]++;
