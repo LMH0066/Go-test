@@ -1,6 +1,6 @@
 #include "CEngine.h"
 
-
+std::ofstream fout;
 
 CEngine::CEngine()
 {
@@ -11,7 +11,7 @@ CEngine::~CEngine()
 {
 }
 
-int CEngine::CountGroup(int x, int y, int index, int dir = 0)
+int CEngine::CountGroup(int x, int y, int index, int dir)
 {
 	float eyes = 0;
 
@@ -76,11 +76,11 @@ int CEngine::CountGroup(int x, int y, int index, int dir = 0)
 	return index;
 }
 
-int CEngine::GetScore(int x, int y) {
+double CEngine::GetScore(int x, int y) {
 
 	int Score_1 = 100;
 	//分数
-	int score = 0;
+	double score = 0;
 
 	//我的棋子数量
 	int selfG = 0;
@@ -444,7 +444,7 @@ bool CEngine::GetGoMove(PMove*	pMove)
 	//	return true;
 	//}
 
-	int score = 0;
+	double score = 0;
 
 	PMove preMove;
 
@@ -453,10 +453,10 @@ bool CEngine::GetGoMove(PMove*	pMove)
 
 	//对所有的有点位置评分
 	int count = 0;
-	int tempI, tempJ;
+	// int tempI, tempJ;
 	int groupIndex = 0;
 
-	int boardScore[BOARD_ROWS][BOARD_ROWS] = { 0 };
+	double boardScore[BOARD_ROWS][BOARD_ROWS] = { 0 };
 
 	memset(group, 0, sizeof(group));
 	memset(boardGroup, 0, sizeof(boardGroup));
@@ -511,7 +511,7 @@ bool CEngine::GetGoMove(PMove*	pMove)
 
 	if (pMove->score > 0)
 	{
-		printf("ComputeGet\nScore: %d\n", pMove->score);
+		printf("ComputeGet\nScore: %f\n", pMove->score);
 		return true;
 	}
 	else

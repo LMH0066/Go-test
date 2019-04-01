@@ -3,7 +3,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <fstream>
-std::ofstream fout;
+
+extern std::ofstream fout;
+
 class CEngine :
 	public Define
 {
@@ -19,7 +21,7 @@ public:
 	virtual void	MoveSucceed();
 	virtual void	MoveFail();
 	virtual bool	nbMove(PMove* pMove) = 0;			//高级生成招法
-	virtual int		GetScore(int x, int y);
+	virtual double	GetScore(int x, int y);
 	virtual int     clean(PMove pMove, char color, char temp_board[][BOARD_ROWS]) = 0;
 };
 

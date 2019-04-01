@@ -1,12 +1,13 @@
 #include "CEngine.h"
 #include "CMonteCarlo.h"
 #include <windows.h>
+
 int main()
 {
 	CMonteCarlo test;
 	char	msg[100];
 	int		numTi = 0;
-	int		x, y;
+	// int		x, y;
 	test.InitGame();
 
 	while (1)

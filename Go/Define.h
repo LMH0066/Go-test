@@ -10,7 +10,7 @@ public:
 	{
 		char x;
 		char y;
-		int	score;
+		double score;
 	}PMove;		//ÕÐ·¨
 
 	typedef struct PGroup
