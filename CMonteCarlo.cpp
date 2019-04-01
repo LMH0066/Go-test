@@ -64,6 +64,7 @@ void CMonteCarlo::createEye(PMove pMove, char color, char temp_board[][BOARD_ROW
 	}
 }
 
+// TODO: 为何要在左右判断
 void CMonteCarlo::haveEye()
 {
 	PMove temp;
@@ -81,6 +82,7 @@ void CMonteCarlo::haveEye()
 	}
 }
 
+// 周边或者此处有自己的子或者为空那么返回true
 bool CMonteCarlo::live(PMove pMove, char color, char temp_board[][BOARD_ROWS]) {
 	int i;
 	PMove temp = pMove;
@@ -112,23 +114,27 @@ bool CMonteCarlo::live(PMove pMove, char color, char temp_board[][BOARD_ROWS]) {
 	return false;
 }
 
+// TODO. 为什么是!live(敌方棋子)   
+// 答: 感觉这里之所以要在第三个if里面 尝试性落自己的子(1), 是为了给敌方子的live判断加入条件, 假如将这个子替换为自己的子, 这时敌方无法live,那么说明这里必定是敌方子, 否则敌方周边子就不具备存在合理性
+// false: 自己子, (不是自己子或落下不可存活的空点)且周边满足(有自己点或敌方可存活或是围墙)
+// true : 可落空点, 敌方的连贯点
 bool CMonteCarlo::check(PMove pMove, char color)
 {
 	char temp_color;
 	PMove temp = pMove;
 	int i;
-	if (temp_board[pMove.x][pMove.y] == color)
+	if (temp_board[pMove.x][pMove.y] == color)	//是自己的子,不能落
 		return false;
-	if (temp_board[pMove.x][pMove.y] == 0) {
+	if (temp_board[pMove.x][pMove.y] == 0) {	// TODO.如果不能live岂不是证明这里是眼? 为什么不加入create眼
 		temp_board[pMove.x][pMove.y] = color;
 		if (live(pMove, color, temp_board))
 			return true;
 		temp_board[pMove.x][pMove.y] = 0;
 	}
-	if (board_know[pMove.x][pMove.y] < 2) {
-		temp_color = temp_board[pMove.x][pMove.y];
-		temp_board[pMove.x][pMove.y] = color;
-		for (i = -1; i <= 1; i += 2) {
+	if (board_know[pMove.x][pMove.y] < 2) {		// 进入条件: 敌方子(不是自己子)或被包围空子     且know次数小于2
+		temp_color = temp_board[pMove.x][pMove.y];	// 提取该点原有子的颜色 为了的是下面的换子失败时回归
+		temp_board[pMove.x][pMove.y] = color;	// 尝试性落下自己的子 (1)
+		for (i = -1; i <= 1; i += 2) {			// 如果周边不是自己子 同时敌方子无法存活 同时不是边界 那么落下敌方子
 			temp.x = pMove.x + i;
 			if (temp_board[temp.x][temp.y] != color && !live(temp, color % 2 + 1, temp_board) && temp_board[temp.x][temp.y] != BORDER) {
 				temp_board[pMove.x][pMove.y] = color % 2 + 1;
@@ -145,9 +151,10 @@ bool CMonteCarlo::check(PMove pMove, char color)
 		temp_board[pMove.x][pMove.y] = temp_color;
 	}
 
-	return false;
+	return false;	
 }
 
+// remove己方连带子
 int CMonteCarlo::removed(PMove pMove, char color, char temp_board[][BOARD_ROWS])
 {
 	int i, num = 0;
@@ -169,11 +176,12 @@ int CMonteCarlo::removed(PMove pMove, char color, char temp_board[][BOARD_ROWS])
 	return num;
 }
 
+
+// 清楚己方不再存活的子 但是保留当前下的子 这是为了什么
 int CMonteCarlo::clean(PMove pMove, char color, char temp_board[][BOARD_ROWS])
 {
 	int i, num = 0;
 	PMove temp = pMove;
-	memset(visited, 0, sizeof(visited));
 
 	for (i = -1; i <= 1; i += 2) {
 		temp.x = pMove.x + i;
@@ -191,6 +199,7 @@ int CMonteCarlo::clean(PMove pMove, char color, char temp_board[][BOARD_ROWS])
 	return num;
 }
 
+// 本质操作是在敌我双方在随机数下轮流进行落子, 但存在一个问题:随机性.这样子就没有利用好既有的落子结构.
 int CMonteCarlo::MonteCarloMove(char color)
 {
 	int num, flag, take_num, out = 0;
@@ -226,7 +235,7 @@ int CMonteCarlo::MonteCarloMove(char color)
 
 							take_num = 0;
 
-							temp.x = 11;
+							temp.x = 11;	// TODO. 是换成敌方,但为什么要放弃了这一行,继续给敌方子遍历这一行不好嘛
 							break;
 						}
 						else {
@@ -265,11 +274,12 @@ bool CMonteCarlo::nbMove(PMove*	pMove)
 			point = 0;
 			for (i = 0; i < MT_NUMS; i++) {
 				srand(rand()*(int)time(0));
-				boardCopy();
+				boardCopy();	// TODO.这是因为check改变了棋盘结构, 舍弃是必然的, 但是check究竟是获得了很多信息的,这么样就舍弃掉check获得的数据是否不应该
 				temp_board[begin_stone.x][begin_stone.y] = myColor;
 				stone_num[myColor] = player[myColor].total + 1;
 				stone_num[myColor % 2 + 1] = player[myColor].know;
 
+				// 给敌方随机落子补齐
 				while (player[myColor % 2 + 1].total > stone_num[myColor % 2 + 1]) {
 					num = 1 + (int)((81.0 - stone_num[1] - stone_num[2])*rand() / (RAND_MAX + 1.0));
 					for (temp.x = 1; temp.x <= 9; temp.x++) {
@@ -299,7 +309,7 @@ bool CMonteCarlo::nbMove(PMove*	pMove)
 		}
 	}
 	//	PrintMarkBord();
-	if (max_point > TRUST_VALUE) {
+	if (max_point > TRUST_VALUE) {	
 		*pMove = best;
 		return true;
 	}
