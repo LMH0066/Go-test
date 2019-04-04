@@ -31,7 +31,7 @@ int main()
 			test.MoveFail();
 			test.Move();
 		}
-		else if (strcmp(msg, "test.Move") == 0)
+		else if (strcmp(msg, "move") == 0)
 		{
 			scanf("%s", msg); // Read "go"
 			fout << "I " << msg << "\n";
@@ -123,8 +123,8 @@ int main()
 				test.myColor = test.BLACK;
 				test.opColor = test.WHITE;
 				test.SearchMove(&test.bestMove);
-				printf("test.Move %c%c\n", test.bestMove.x + 'A' - 1, test.bestMove.y + 'A' - 1);
-				fout << "O " << "test.Move " << char(test.bestMove.x + 'A' - 1) << char(test.bestMove.y + 'A' - 1) << "\n";
+				printf("move %c%c\n", test.bestMove.x + 'A' - 1, test.bestMove.y + 'A' - 1);
+				fout << "O " << "move " << char(test.bestMove.x + 'A' - 1) << char(test.bestMove.y + 'A' - 1) << "\n";
 				fflush(stdout);
 			}
 			else
