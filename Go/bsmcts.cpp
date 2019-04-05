@@ -1,12 +1,12 @@
-#include"bsmcts.h"
+ï»¿#include"bsmcts.h"
 
 mcts::PMove mcts::search(state &cstate)
 {
 	int computation_budget = 2000;
 	for (int i = 0; i < computation_budget; i++)
 	{
-		bool result;//resultÎªµ¥´ÎÄ£Äâ½á¹û 
-		board_copy();//¸´ÖÆÒÑÖªÆåÅÌ 
+		bool result;//resultä¸ºå•æ¬¡æ¨¡æ‹Ÿç»“æžœ 
+		board_copy();//å¤åˆ¶å·²çŸ¥æ£‹ç›˜ 
 		tree_board[cstate.pmove.x][cstate.pmove.y] = cstate.color;
 		expand(cstate);
 		result = simulate(cstate);
@@ -38,12 +38,12 @@ void mcts::expand(state &cstate)
 	stone_num[opColor] = player[opColor].total;
 	num = rand() % (cstate.prenode.size());
 	node history;
-	for (int i = 0;; i++)//´´½¨¸ùÐÅÄî×´Ì¬ÀúÊ· 
+	for (int i = 0;; i++)//åˆ›å»ºæ ¹ä¿¡å¿µçŠ¶æ€åŽ†å² 
 	{
 		if (num <= 0) { history = cstate.prenode[i]; break; }
 		else num--;
 	}
-	while (cstate.is_all_expand())//Ñ¡Ôñ·½Ê½£¿ 
+	while (cstate.is_all_expand())//é€‰æ‹©æ–¹å¼ï¼Ÿ 
 	{
 		if (cstate.color == opColor)
 		{
@@ -56,11 +56,11 @@ void mcts::expand(state &cstate)
 			tree_board[cstate.pmove.x][cstate.pmove.y] = cstate.color;
 		}
 	}
-	PMove temp;//ÁÙÊ±ÓÃÓÚÍØÕ¹×Ó×´Ì¬ 
+	PMove temp;//ä¸´æ—¶ç”¨äºŽæ‹“å±•å­çŠ¶æ€ 
 	bool flag = 0;
 	while (!flag)
 	{
-		num = 1 + (int)((81.0 - stone_num[1] - stone_num[2])*rand() / (RAND_MAX + 1.0));//Ëæ»úÍØÕ¹ÕÐ·¨¼´×Ó×´Ì¬ 
+		num = 1 + (int)((81.0 - stone_num[1] - stone_num[2])*rand() / (RAND_MAX + 1.0));//éšæœºæ‹“å±•æ‹›æ³•å³å­çŠ¶æ€ 
 		for (temp.x = 1; temp.x <= 9; temp.x++) {
 			for (temp.y = 1; temp.y <= 9; temp.y++) {
 				if (tree_board[temp.x][temp.y] == 0) {
@@ -97,11 +97,11 @@ double mcts::simulate(state &cstate)
 	for (int i = 0; i <= 10; i++) {
 		for (int j = 0; j <= 10; j++) {
 			temp_board[i][j] = tree_board[i][j];
-			if (tree_board[i][j] == myColor) stone_num[myColor]++;//ÒÑÖªÆå×Ó+Ê÷ÖÐÒÑ×ß×Ó 
+			if (tree_board[i][j] == myColor) stone_num[myColor]++;//å·²çŸ¥æ£‹å­+æ ‘ä¸­å·²èµ°å­ 
 			if (tree_board[i][j] == opColor) stone_num[opColor]++;
 		}
 	}
-	//Ëæ»ú´´½¨¸ùÐÅÄîÒÔÉÏµÄÀúÊ· 
+	//éšæœºåˆ›å»ºæ ¹ä¿¡å¿µä»¥ä¸Šçš„åŽ†å² 
 	int num;
 	PMove temp;
 	srand(rand()*(int)time(0));
@@ -123,7 +123,7 @@ double mcts::simulate(state &cstate)
 		}
 	}
 	//PrintTempBoard();
-	result = MCMove(cstate.color % 2 + 1, stone_num, temp_board);//Ëæ»ú×ß×Ó,¸Ä°æMonteCarloMoveº¯Êý 
+	result = MCMove(cstate.color % 2 + 1, stone_num, temp_board);//éšæœºèµ°å­,æ”¹ç‰ˆMonteCarloMoveå‡½æ•° 
 }
 
 
@@ -205,7 +205,7 @@ bool mcts::unexplored(state &cstate, PMove temp)
 	{
 		for (int i = 0; i < cstate.child_state[id].prenode.size(); ++i)
 		{
-			if () return 0;//ÈçºÎÅÐ¶ÏÊÇ·ñÉú³É¸ÃÀúÊ·µÄ¶ÔÓ¦½áµã ?
+			if () return 0;//å¦‚ä½•åˆ¤æ–­æ˜¯å¦ç”Ÿæˆè¯¥åŽ†å²çš„å¯¹åº”ç»“ç‚¹ ?
 		}
 		return 1;
 	}
@@ -254,12 +254,12 @@ mcts::state mcts::new_state(state &cstate, PMove smove)
 	return newstate;
 }
 
-void mcts::state::new_node(state &cstate)//ÊÇ·ñ±£´æ¸¸×Ó¹ØÏµ´´½¨£¿ 
+void mcts::state::new_node(state &cstate)//æ˜¯å¦ä¿å­˜çˆ¶å­å…³ç³»åˆ›å»ºï¼Ÿ 
 {
 	
 }
 
-//¸Ä°æÃÉÌØ¿¨ÂåÄ£Äâ£¬¾Í¼ÓÁË¸ö´«Öµ 
+//æ”¹ç‰ˆè’™ç‰¹å¡æ´›æ¨¡æ‹Ÿï¼Œå°±åŠ äº†ä¸ªä¼ å€¼ 
 int mcts::MCMove(char color, int stone_num[4], char temp_board[BOARD_ROWS][BOARD_ROWS])
 {
 	int num, flag, take_num, out = 0;

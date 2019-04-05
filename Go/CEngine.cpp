@@ -1,4 +1,4 @@
-#include "CEngine.h"
+ï»¿#include "CEngine.h"
 
 std::ofstream fout;
 
@@ -30,7 +30,7 @@ int CEngine::CountGroup(int x, int y, int index, int dir)
 	boardGroup[x][y] = index;
 	group[index].count += 1;
 
-	//×ó·½Ïò
+	//å·¦æ–¹å‘
 	if (board[x - 1][y] == board[x][y] && dir != 3)
 	{
 		CountGroup(x - 1, y, index, 1);
@@ -41,7 +41,7 @@ int CEngine::CountGroup(int x, int y, int index, int dir)
 		eyes += 1.0 / 4;
 	}
 
-	//ÓĞ·½Ïò
+	//æœ‰æ–¹å‘
 	if (board[x + 1][y] == board[x][y] && dir != 1)
 	{
 		CountGroup(x + 1, y, index, 3);
@@ -51,7 +51,7 @@ int CEngine::CountGroup(int x, int y, int index, int dir)
 		eyes += 1.0 / 4;
 	}
 
-	//ÉÏ·½Ïò
+	//ä¸Šæ–¹å‘
 	if (board[x][y - 1] == board[x][y] && dir != 2)
 	{
 		CountGroup(x, y - 1, index, 4);
@@ -61,7 +61,7 @@ int CEngine::CountGroup(int x, int y, int index, int dir)
 		eyes += 1.0 / 4;
 	}
 
-	//ÏÂ·½Ïò
+	//ä¸‹æ–¹å‘
 	if (board[x][y + 1] == board[x][y] && dir != 4)
 	{
 		CountGroup(x, y + 1, index, 2);
@@ -79,35 +79,35 @@ int CEngine::CountGroup(int x, int y, int index, int dir)
 double CEngine::GetScore(int x, int y) {
 
 	int Score_1 = 100;
-	//·ÖÊı
+	//åˆ†æ•°
 	double score = 0;
 
-	//ÎÒµÄÆå×ÓÊıÁ¿
+	//æˆ‘çš„æ£‹å­æ•°é‡
 	int selfG = 0;
-	//¶ÔÊÖÆå×ÓÊıÁ¿
+	//å¯¹æ‰‹æ£‹å­æ•°é‡
 	int oppG = 0;
 	int selfGIndex[4];
 	int oppGIndex[4];
 
 	float eyes = 0;
-	//ÁÙÊ±Î»ÖÃXY
+	//ä¸´æ—¶ä½ç½®XY
 	int tempX, tempY;
-	//±ßÔµÊıÁ¿
+	//è¾¹ç¼˜æ•°é‡
 	int edge = 0;
 
-	//Èç¹ûÊÇ×Ô¼ºµÄÆå×Ó
+	//å¦‚æœæ˜¯è‡ªå·±çš„æ£‹å­
 	if (board[x - 1][y] == myColor)
 	{
 		selfGIndex[selfG] = boardGroup[x - 1][y];
 		selfG++;
 	}
-	//Èç¹ûÊÇ¶ÔÊÖµÄÆå×Ó
+	//å¦‚æœæ˜¯å¯¹æ‰‹çš„æ£‹å­
 	else if (board[x - 1][y] == (myColor ^ 3))
 	{
 		oppGIndex[oppG] = boardGroup[x - 1][y];
 		oppG++;
 	}
-	//Èç¹ûÃ»ÓĞÆå×Ó
+	//å¦‚æœæ²¡æœ‰æ£‹å­
 	else if (board[x - 1][y] == NOSTONE)
 	{
 		tempX = x - 1;
@@ -129,7 +129,7 @@ double CEngine::GetScore(int x, int y) {
 			eyes += 0.25;
 		}
 	}
-	//Èç¹ûÊÇ±ß½ç
+	//å¦‚æœæ˜¯è¾¹ç•Œ
 	else if (board[x - 1][y] == BORDER)
 	{
 		edge++;
@@ -246,7 +246,7 @@ double CEngine::GetScore(int x, int y) {
 	switch (selfG)
 	{
 	case 0:
-		//ÖÜÎ§Ã»ÓĞ×Ô¼ºµÄ×Ó
+		//å‘¨å›´æ²¡æœ‰è‡ªå·±çš„å­
 		switch (oppG)
 		{
 		case 0:
@@ -275,7 +275,7 @@ double CEngine::GetScore(int x, int y) {
 		}
 		break;
 	case 1:
-		//ÖÜÎ§ÓĞÒ»¸ö×Ô¼ºµÄÈº
+		//å‘¨å›´æœ‰ä¸€ä¸ªè‡ªå·±çš„ç¾¤
 		switch (oppG)
 		{
 		case 0:
@@ -295,7 +295,7 @@ double CEngine::GetScore(int x, int y) {
 		}
 		break;
 	case 2:
-		//ÖÜÎ§ÓÉÁ½¸ö×Ô¼ºµÄÈº
+		//å‘¨å›´ç”±ä¸¤ä¸ªè‡ªå·±çš„ç¾¤
 		switch (oppG)
 		{
 		case 0:
@@ -342,7 +342,7 @@ double CEngine::GetScore(int x, int y) {
 		}
 		break;
 	case 3:
-		//ÖÜÎ§ÓĞÈı¸ö×Ô¼ºµÄÈº
+		//å‘¨å›´æœ‰ä¸‰ä¸ªè‡ªå·±çš„ç¾¤
 		switch (oppG)
 		{
 		case 0:
@@ -387,7 +387,7 @@ double CEngine::GetScore(int x, int y) {
 	//	score /= 2;
 	//}
 
-	//Ìá×Ó¼Ó·Ö
+	//æå­åŠ åˆ†
 	for (int i = 0; i < oppG; i++)
 	{
 		if (group[oppGIndex[i]].eyes < 2 * 0.25)
@@ -397,7 +397,7 @@ double CEngine::GetScore(int x, int y) {
 	}
 
 
-	//Èô²»ÎªÁãµÄ»°¼ÓÉÏ»ù´¡·ÖÊı
+	//è‹¥ä¸ä¸ºé›¶çš„è¯åŠ ä¸ŠåŸºç¡€åˆ†æ•°
 	if (score)
 		score += boardBaseScore[x][y] + eyes * 3;
 
@@ -451,7 +451,7 @@ bool CEngine::GetGoMove(PMove*	pMove)
 	//int	boardScore[BOARD_ROWS][BOARD_ROWS] = {0};
 
 
-	//¶ÔËùÓĞµÄÓĞµãÎ»ÖÃÆÀ·Ö
+	//å¯¹æ‰€æœ‰çš„æœ‰ç‚¹ä½ç½®è¯„åˆ†
 	int count = 0;
 	// int tempI, tempJ;
 	int groupIndex = 0;
@@ -486,7 +486,7 @@ bool CEngine::GetGoMove(PMove*	pMove)
 		{
 			if (board[i][j] == NOSTONE)
 			{
-				//¼ÆËãÃ¿Ò»µãµÄ·ÖÊı
+				//è®¡ç®—æ¯ä¸€ç‚¹çš„åˆ†æ•°
 				if (preMove.x == i && preMove.y == j)
 				{
 					score = -10;
@@ -498,7 +498,7 @@ bool CEngine::GetGoMove(PMove*	pMove)
 
 				boardScore[i][j] = score;
 
-				//Ñ°ÕÒ×î´óÖµ
+				//å¯»æ‰¾æœ€å¤§å€¼
 				if (pMove->score < score)
 				{
 					pMove->score = score;
@@ -516,7 +516,7 @@ bool CEngine::GetGoMove(PMove*	pMove)
 	}
 	else
 	{
-		//Ëæ»ú²úÉúÕĞ·¨
+		//éšæœºäº§ç”Ÿæ‹›æ³•
 		int num = 0;
 		int index;
 		for (int i = 1; i < 10; i++)
@@ -557,7 +557,7 @@ bool CEngine::GetGoMove(PMove*	pMove)
 	}
 }
 
-//ÈôÃÉÌØ¿¨ÂŞ·½·¨µÃµ½µÄ¹ÀÖµ´óÓÚÖÃĞÅÖµbelieve_point¼´2000£¬ÔòÑ¡ÔñÃÉÌØ¿¨ÂŞµÄ×î¼Ñ×ß·¨£¬·ñÔòµ÷ÓÃGetGomoveÀûÓÃÌõ¼ş¹ÀÖµÖØĞÂ×ß×Ó
+//è‹¥è’™ç‰¹å¡ç½—æ–¹æ³•å¾—åˆ°çš„ä¼°å€¼å¤§äºç½®ä¿¡å€¼believe_pointå³2000ï¼Œåˆ™é€‰æ‹©è’™ç‰¹å¡ç½—çš„æœ€ä½³èµ°æ³•ï¼Œå¦åˆ™è°ƒç”¨GetGomoveåˆ©ç”¨æ¡ä»¶ä¼°å€¼é‡æ–°èµ°å­
 bool CEngine::SearchMove(PMove*	pMove)
 {
 	int start = clock();
