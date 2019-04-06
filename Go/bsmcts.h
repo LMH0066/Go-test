@@ -30,7 +30,7 @@ public:
 		state	*parent_state;				//父信念状态 
 		vector<node>	prenode;			//当前拥有的根历史 
 		vector<state*>	child_state;		//子信念状态 
-
+		bool    is_all_expand;
 		void	compute_va(bool result, int mycolor);	//收益 
 		void	compute_ucb();				//ucb值 
 		void	compute_pro();				//对手预测中的可能性 
@@ -53,7 +53,7 @@ public:
 	bool unexplored(state *cstate, PMove temp);//done//判断未建立该新节点 
 	int chosen(state *cstate, PMove temp);	//done//判断已建立该信念状态，返回状态编号，未建立则返回-1 
 	void board_copy();						//将已走棋盘复制到tree_board
-	bool is_all_expand(state *cstate);//done
+	//bool is_all_expand(state *cstate);//done
 	int MCMove(char color, int stone_num[4], char temp_board[BOARD_ROWS][BOARD_ROWS]);//就加了个传值，以及返回值我把它改成只有1和0
 	void Init_Prestate();
 };

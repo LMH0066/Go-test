@@ -2,7 +2,7 @@
 
 mcts::PMove* mcts::search(PMove* pMove)
 {
-	// fout << "Is new search" << "\n";
+	fout << "Is new search" << "\n";
 	int computation_budget = 10000;
 	if (first) {
 		Init_Prestate();
@@ -43,6 +43,7 @@ mcts::state::state()
 	visit_times = 0;
 	vastate = 0;
 	parent_state = NULL;
+	is_all_expand = 0;
 }
 
 void mcts::expand(state **cstate)
@@ -54,7 +55,7 @@ void mcts::expand(state **cstate)
 	stone_num[opColor] = player[opColor].total;
 	num = rand() % ((*cstate)->prenode.size());
 	history = (*cstate)->prenode[num];//创建根信念状态历史 
-	while (is_all_expand(*cstate))
+	while ((*cstate)->is_all_expand)
 	{
 		if ((*cstate)->color == opColor)
 		{
@@ -70,26 +71,25 @@ void mcts::expand(state **cstate)
 		}
 	}
 	PMove temp;//临时用于拓展子状态 
+	temp.x = temp.y = 1;
 	bool flag = 0;
-	while (!flag)
-	{
-		num = 1 + (int)((81.0 - stone_num[1] - stone_num[2])*rand() / (RAND_MAX + 1.0));//随机拓展招法即子状态
-		for (temp.x = 1; temp.x <= 9; temp.x++) {
-			for (temp.y = 1; temp.y <= 9; temp.y++) {
-				if (tree_board[temp.x][temp.y] == 0) {
-					num--;
-					if (num <= 1 && check(temp, (*cstate)->color % 2 + 1, tree_board) && unexplored(*cstate, temp)) {
-						flag = 1;
-						tree_board[temp.x][temp.y] = (*cstate)->color % 2 + 1;
-						stone_num[(*cstate)->color % 2 + 1] ++;
-						// temp.x = 10;
-						break;
-					}
+	int l = (*cstate)->child_state.size();
+	for (temp.x = l>0?((*cstate)->child_state[l-1]->pmove.x):1; temp.x <= 9; temp.x++) {
+		for (temp.y = l > 0 ? ((*cstate)->child_state[l - 1]->pmove.y) : 1; temp.y <= 9; temp.y++) {
+			if (tree_board[temp.x][temp.y] == 0) {
+				if (check(temp, (*cstate)->color % 2 + 1, tree_board) && unexplored(*cstate, temp)) {
+					tree_board[temp.x][temp.y] = (*cstate)->color % 2 + 1;
+					stone_num[(*cstate)->color % 2 + 1] ++;
+					flag = 1;
+					// temp.x = 10;
+					break;
 				}
 			}
-			if (flag)break;
 		}
+		if (flag) break;
 	}
+	if (temp.x == 10 && temp.y == 10) { (*cstate)->is_all_expand = 1; return; }
+	
 	// printf("%d\n%d\n", temp.x, temp.y);
 	int id = chosen(*cstate, temp);
 	if (id == -1)
@@ -291,7 +291,7 @@ void mcts::new_node(state *cstate)//是否保存父子关系创建？
 	cstate->prenode.push_back(history);
 }
 
-bool mcts::is_all_expand(state *cstate)
+/*bool mcts::is_all_expand(state *cstate)
 {
 	int ch_si = 0;
 	int chess_color[3] = { 0 };
@@ -306,7 +306,7 @@ bool mcts::is_all_expand(state *cstate)
 	// printf("child_state.size: %d\nchess_color: %d\nplayer[cstate.color].total: %d", cstate->child_state.size(), chess_color[cstate->color % 2 + 1], player[cstate->color].total);
 	if (ch_si + chess_color[cstate->color % 2 + 1] + player[cstate->color].total >= 81) return 1;
 	else return 0;
-}
+}*/
 
 //改版蒙特卡洛模拟，就加了个传值 
 int mcts::MCMove(char color, int stone_num[4], char temp_board[BOARD_ROWS][BOARD_ROWS])
