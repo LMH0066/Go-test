@@ -569,7 +569,13 @@ bool CEngine::SearchMove(PMove*	pMove)
 {
 	fout << "search begin" << "\n";
 	int start = clock();
-	if (player[myColor].know > 3 /*&& nbMove(pMove)*/) {
+	/*if (player[myColor].know > 3 && nbMove(pMove)) {
+		// printf("pMove: %d %d\n", pMove->x, pMove->y);
+		int end = clock();
+		printf("ms: %d\n", end - start);
+		return true;
+	}*/
+	if (player[myColor].know > 10 /*&& nbMove(pMove)*/) {
 		search(pMove);
 		// printf("pMove: %d %d\n", pMove->x, pMove->y);
 		int end = clock();

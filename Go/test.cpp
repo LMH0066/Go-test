@@ -23,6 +23,8 @@ int main()
 		{
 			fflush(stdin);
 			test.MoveSucceed();
+			if(test.player[test.myColor].know > 10)
+				test.prestate = test.opchoice(test.bestmove);
 		}
 		else if (strcmp(msg, "refuse") == 0)
 		{
@@ -138,6 +140,7 @@ int main()
 			test.BoardShow();
 		}
 		fout.close();
+		test.BoardShow();
 	}
 
 	return 0;

@@ -7,7 +7,7 @@ public:
 	CMonteCarlo();
 	~CMonteCarlo();
 	const	static	int MT_NUMS = 1000;			//蒙特卡洛次数
-	const	static	int TRUST_VALUE = 2000;		//信任值
+	const	static	int TRUST_VALUE = 800;		//信任值
 	char	temp_board[BOARD_ROWS][BOARD_ROWS];
 	char	visited[BOARD_ROWS][BOARD_ROWS];
 	int		stone_num[4], eye[4];
