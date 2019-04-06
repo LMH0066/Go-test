@@ -38,7 +38,7 @@ public:
 	char	myColor;
 	char	opColor;
 	PMove	bestMove;
-	GPlayer player[2];						//白和黑棋,记录各方的走子总数和知道对方的子数
+	GPlayer player[3];						//白和黑棋,记录各方的走子总数和知道对方的子数
 	void	BoardShow();
 	void	InitGame();
 };

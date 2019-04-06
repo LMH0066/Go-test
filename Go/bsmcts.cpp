@@ -18,7 +18,7 @@ mcts::PMove* mcts::search()
 		back_up(&prestate, result);
 	}
 	state *bestmove = choosebest();
-	prestate = opchoice(*bestmove);
+	prestate = opchoice(bestmove);
 	return &bestmove->pmove;
 }
 
@@ -45,17 +45,17 @@ void mcts::expand(state **cstate)
 	stone_num[opColor] = player[opColor].total;
 	num = rand() % ((*cstate)->prenode.size());
 	history = (*cstate)->prenode[num];//创建根信念状态历史 
-	while (is_all_expand(*(*cstate)))
+	while (is_all_expand(*cstate))
 	{
 		if ((*cstate)->color == opColor)
 		{
-			*cstate = mychoice(*(*cstate));
+			*cstate = mychoice(*cstate);
 			tree_board[(*cstate)->pmove.x][(*cstate)->pmove.y] = (*cstate)->color;
 			stone_num[(*cstate)->color]++;
 		}
-		if ((*cstate)->color == myColor)
+		else if ((*cstate)->color == myColor)
 		{
-			(*cstate) = opchoice(*(*cstate));
+			(*cstate) = opchoice(*cstate);
 			tree_board[(*cstate)->pmove.x][(*cstate)->pmove.y] = (*cstate)->color;
 			stone_num[(*cstate)->color]++;
 		}
@@ -64,29 +64,37 @@ void mcts::expand(state **cstate)
 	bool flag = 0;
 	while (!flag)
 	{
-		num = 1 + (int)((81.0 - stone_num[1] - stone_num[2])*rand() / (RAND_MAX + 1.0));//随机拓展招法即子状态 
+		num = 1 + (int)((81.0 - stone_num[1] - stone_num[2])*rand() / (RAND_MAX + 1.0));//随机拓展招法即子状态
 		for (temp.x = 1; temp.x <= 9; temp.x++) {
 			for (temp.y = 1; temp.y <= 9; temp.y++) {
 				if (tree_board[temp.x][temp.y] == 0) {
 					num--;
-					if (num <= 1 && check(temp, (*cstate)->color % 2 + 1, tree_board) && unexplored(*(*cstate), temp)) {
+					if (num <= 1 && check(temp, (*cstate)->color % 2 + 1, tree_board) && unexplored(*cstate, temp)) {
 						flag = 1;
 						tree_board[temp.x][temp.y] = (*cstate)->color % 2 + 1;
 						stone_num[(*cstate)->color % 2 + 1] ++;
-						temp.x = 10;
+						// temp.x = 10;
 						break;
 					}
 				}
 			}
+			if (flag)break;
 		}
 	}
-	int id = chosen(*(*cstate), temp);
+	// printf("%d\n%d\n", temp.x, temp.y);
+	int id = chosen(*cstate, temp);
 	if (id == -1)
 	{
-		(*cstate) = new_state(*(*cstate), temp);
+		// printf("%d\n", *cstate);
+		*cstate = new_state(*cstate, temp);
+		// printf("%d\n", *cstate);
+		// printf("%d\n", &ancestor->child_state[0]);
 		// new_node(*(*cstate));
 	}
-	else if(unexplored(*(*cstate), temp)) new_node((*cstate)->child_state[id]);
+	else if (unexplored(*cstate, temp)) {
+		*cstate = (*cstate)->child_state[id];
+		new_node(*cstate);
+	}
 }
 
 
@@ -134,41 +142,43 @@ void mcts::back_up(state **cstate, bool result)
 {
 	(*cstate)->visit_times++;
 	(*cstate)->compute_va(result, myColor);
+	// printf("%d\n", *cstate);
 	while ((*cstate) != ancestor)
 	{
 		(*cstate) = (*cstate)->parent_state;
 		(*cstate)->visit_times++;
 		(*cstate)->compute_va(result, myColor);
+		// printf("%d\n", (*cstate)->child_state[0]);
 	}
 }
 
-mcts::state* mcts::mychoice(state &cstate)
+mcts::state* mcts::mychoice(state *cstate)
 {
-	cstate.compute_ucb();
-	state *best_next = &cstate.child_state[0];
-	double best_ucb = cstate.child_state[0].ucb;
-	for (int i = 0; i < cstate.child_state.size(); ++i)
+	if(cstate != ancestor) cstate->compute_ucb();
+	state *best_next = cstate->child_state[0];
+	double best_ucb = cstate->child_state[0]->ucb;
+	for (int i = 0; i < cstate->child_state.size(); ++i)
 	{
-		if (cstate.child_state[i].ucb > best_ucb)
+		if (cstate->child_state[i]->ucb > best_ucb)
 		{
-			best_next = &cstate.child_state[i];
-			best_ucb = cstate.child_state[i].ucb;
+			best_next = cstate->child_state[i];
+			best_ucb = cstate->child_state[i]->ucb;
 		}
 	}
 	return best_next;
 }
 
-mcts::state *mcts::opchoice(state &cstate)
+mcts::state *mcts::opchoice(state *cstate)
 {
-	cstate.compute_pro();
-	state *best_next = &cstate.child_state[0];
-	double best_pro = cstate.child_state[0].pro;
-	for (int i = 0; i < cstate.child_state.size(); ++i)
+	if (cstate != ancestor) cstate->compute_pro();
+	state *best_next = cstate->child_state[0];
+	double best_pro = cstate->child_state[0]->pro;
+	for (int i = 0; i < cstate->child_state.size(); ++i)
 	{
-		if (cstate.child_state[i].vastate > best_pro)
+		if (cstate->child_state[i]->vastate > best_pro)
 		{
-			best_next = &cstate.child_state[i];
-			best_pro = cstate.child_state[i].pro;
+			best_next = cstate->child_state[i];
+			best_pro = cstate->child_state[i]->pro;
 		}
 	}
 	return best_next;
@@ -176,38 +186,38 @@ mcts::state *mcts::opchoice(state &cstate)
 
 mcts::state *mcts::choosebest()
 {
-	state *best_next = &prestate->child_state[0];
-	double best_va = prestate->child_state[0].vastate;
+	state *best_next = prestate->child_state[0];
+	double best_va = prestate->child_state[0]->vastate;
 	for (int i = 0; i < prestate->child_state.size(); ++i)
 	{
-		if (prestate->child_state[i].vastate > best_va)
+		if (prestate->child_state[i]->vastate > best_va)
 		{
-			best_next = &prestate->child_state[i];
-			best_va = prestate->child_state[i].vastate;
+			best_next = prestate->child_state[i];
+			best_va = prestate->child_state[i]->vastate;
 		}
 	}
 	return best_next;
 }
 
-int mcts::chosen(state &cstate, PMove temp)
+int mcts::chosen(state *cstate, PMove temp)
 {
-	for (int i = 0; i < cstate.child_state.size(); ++i)
+	for (int i = 0; i < cstate->child_state.size(); ++i)
 	{
-		if (cstate.child_state[i].pmove.x == temp.x && cstate.child_state[i].pmove.y == temp.y) return i;
+		if (cstate->child_state[i]->pmove.x == temp.x && cstate->child_state[i]->pmove.y == temp.y) return i;
 	}
 	return -1;
 }
 
-bool mcts::unexplored(state &cstate, PMove temp)
+bool mcts::unexplored(state *cstate, PMove temp)
 {
 	int id;
 	id = chosen(cstate, temp);
 	if (id == -1) return 1;
 	else
 	{
-		for (int i = 0; i < cstate.child_state[id].prenode.size(); ++i)
+		for (int i = 0; i < cstate->child_state[id]->prenode.size(); ++i)
 		{
-			if (history.nmove.x == cstate.child_state[id].prenode[i].nmove.x && history.nmove.y == cstate.child_state[id].prenode[i].nmove.y) return 0;
+			if (history.nmove.x == cstate->child_state[id]->prenode[i].nmove.x && history.nmove.y == cstate->child_state[id]->prenode[i].nmove.y) return 0;
 		}
 		return 1;
 	}
@@ -227,7 +237,7 @@ void mcts::state::compute_pro()
 	double sum = 0;
 	for (int i = 0; i < (parent_state->child_state).size(); ++i)
 	{
-		sum += exp(lamuda*(parent_state->child_state[i].vastate));
+		sum += exp(lamuda*(parent_state->child_state[i]->vastate));
 	}
 	pro = exp(lamuda*vastate) / sum;
 }
@@ -247,14 +257,15 @@ void mcts::board_copy()
 	}
 }
 
-mcts::state* mcts::new_state(state &cstate, PMove smove)
+mcts::state* mcts::new_state(state *cstate, PMove smove)
 {
 	state *newstate = new state;
-	newstate->color = cstate.color % 2 + 1;
+	newstate->color = cstate->color % 2 + 1;
 	newstate->pmove = smove;
-	newstate->parent_state = &cstate;
+	newstate->parent_state = cstate;
 	newstate->prenode.push_back(history);
-	cstate.child_state.push_back(*newstate);
+	(*cstate).child_state.push_back(newstate);
+	// printf("%d\n", &cstate.child_state[0]);
 	return newstate;
 }
 
@@ -264,12 +275,12 @@ mcts::~mcts()
 	ancestor = NULL;
 }
 
-void mcts::new_node(state &cstate)//是否保存父子关系创建？ 
+void mcts::new_node(state *cstate)//是否保存父子关系创建？ 
 {
-	cstate.prenode.push_back(history);
+	cstate->prenode.push_back(history);
 }
 
-bool mcts::is_all_expand(state &cstate)
+bool mcts::is_all_expand(state *cstate)
 {
 	int ch_si = 0;
 	int chess_color[3] = { 0 };
@@ -279,10 +290,10 @@ bool mcts::is_all_expand(state &cstate)
 			if (tree_board[i][j] == myColor) chess_color[myColor]++;
 			if (tree_board[i][j] == opColor) chess_color[opColor]++;
 		}
-	if (cstate.child_state.empty())ch_si = 0;
-	else ch_si = cstate.child_state.size();
-	// printf("child_state.size: %d\nchess_color: %d\nplayer[cstate.color].total: %d", cstate.child_state.size(), chess_color[cstate.color % 2 + 1], player[cstate.color].total);
-	if (ch_si + chess_color[cstate.color % 2 + 1] + player[cstate.color].total >= 81) return 1;
+	if (cstate->child_state.empty())ch_si = 0;
+	else ch_si = cstate->child_state.size();
+	// printf("child_state.size: %d\nchess_color: %d\nplayer[cstate.color].total: %d", cstate->child_state.size(), chess_color[cstate->color % 2 + 1], player[cstate->color].total);
+	if (ch_si + chess_color[cstate->color % 2 + 1] + player[cstate->color].total >= 81) return 1;
 	else return 0;
 }
 
