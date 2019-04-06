@@ -1,6 +1,6 @@
 #include"bsmcts.h"
 
-mcts::PMove mcts::search()
+mcts::PMove *mcts::search()
 {
 	int computation_budget = 2000;
 	for (int i = 0; i < computation_budget; i++)
@@ -13,8 +13,8 @@ mcts::PMove mcts::search()
 		back_up(prestate, result);
 	}
 	state *bestmove=choosebest();
-	prestate=&opchoice(*bestmove); 
-	return bestmove->pmove;
+	prestate=opchoice(*bestmove); 
+	return &bestmove->pmove;
 }
 
 mcts::node::node()
@@ -44,13 +44,13 @@ void mcts::expand(state *cstate)
 	{
 		if (cstate->color == opColor)
 		{
-			cstate = &mychoice(*cstate);
+			cstate = mychoice(*cstate);
 			tree_board[cstate->pmove.x][cstate->pmove.y] = cstate->color;
 			stone_num[cstate->color]++;
 		}
 		if (cstate->color == myColor)
 		{
-			cstate = &opchoice(*cstate);
+			cstate = opchoice(*cstate);
 			tree_board[cstate->pmove.x][cstate->pmove.y] = cstate->color;
 			stone_num[cstate->color]++;
 		}
@@ -77,7 +77,7 @@ void mcts::expand(state *cstate)
 	}
 	if (chosen(*cstate, temp) == -1)
 	{
-		cstate = &new_state(*cstate, temp);
+		cstate = new_state(*cstate, temp);
 		new_node(*cstate);
 	}
 	else
@@ -138,32 +138,32 @@ void mcts::back_up(state *cstate, bool result)
 	}
 }
 
-mcts::state mcts::mychoice(state &cstate)
+mcts::state *mcts::mychoice(state &cstate)
 {
 	cstate.compute_ucb();
-	state best_next = cstate.child_state[0];
+	state *best_next = &cstate.child_state[0];
 	double best_ucb = cstate.child_state[0].ucb;
 	for (int i = 0; i < cstate.child_state.size(); ++i)
 	{
 		if (cstate.child_state[i].ucb > best_ucb)
 		{
-			best_next = cstate.child_state[i];
+			best_next = &cstate.child_state[i];
 			best_ucb = cstate.child_state[i].ucb;
 		}
 	}
 	return best_next;
 }
 
-mcts::state mcts::opchoice(state &cstate)
+mcts::state *mcts::opchoice(state &cstate)
 {
 	cstate.compute_pro();
-	state best_next=cstate.child_state[0];
+	state *best_next=&cstate.child_state[0];
 	double best_pro=cstate.child_state[0].pro;
 	for (int i = 0; i < cstate.child_state.size(); ++i)
 	{
 		if (cstate.child_state[i].vastate > best_pro)
 		{
-			best_next = cstate.child_state[i];
+			best_next = &cstate.child_state[i];
 			best_pro = cstate.child_state[i].pro;
 		}
 	}
@@ -243,13 +243,14 @@ void mcts::board_copy()
 	}
 }
 
-mcts::state mcts::new_state(state &cstate, PMove smove)
+mcts::state *mcts::new_state(state &cstate, PMove smove)
 {
-	state newstate;
-	newstate.color = cstate.color % 2 + 1;
-	newstate.pmove = smove;
-	newstate.parent_state = &cstate;
-	cstate.child_state.push_back(newstate);
+	state *newstate;
+	newstate=new state;
+	newstate->color = cstate.color % 2 + 1;
+	newstate->pmove = smove;
+	newstate->parent_state = &cstate;
+	cstate.child_state.push_back(*newstate);
 	return newstate;
 }
 
