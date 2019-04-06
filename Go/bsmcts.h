@@ -42,7 +42,7 @@ public:
 	state *prestate;	//指针						//当前根信念状态
 	state *ancestor;
 	void  new_node(state *cstate);//done
-	virtual PMove *search();//指针			//核心调用函数，cstate为当前处理的信念状态 
+	virtual PMove *search(PMove* pMove);//指针			//核心调用函数，cstate为当前处理的信念状态 
 	state *new_state(state *cstate, PMove smove);//done//函数传值问题 
 	void back_up(state **cstate, bool result);//指针//回溯函数 
 	state *mychoice(state *cstate);	//done		//我对于信念状态转移的选择 

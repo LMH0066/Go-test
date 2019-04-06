@@ -404,7 +404,7 @@ double CEngine::GetScore(int x, int y) {
 	return score;
 }
 
-CEngine::PMove* CEngine::search()
+CEngine::PMove* CEngine::search(PMove*	pMove)
 {
 	fout << "Is old search" << "\n";
 	PMove p{ 0, 0, 0 };
@@ -570,7 +570,8 @@ bool CEngine::SearchMove(PMove*	pMove)
 	fout << "search begin" << "\n";
 	int start = clock();
 	if (player[myColor].know > 3 /*&& nbMove(pMove)*/) {
-		pMove = search();
+		search(pMove);
+		// printf("pMove: %d %d\n", pMove->x, pMove->y);
 		int end = clock();
 		printf("ms: %d\n", end - start);
 		return true;

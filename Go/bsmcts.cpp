@@ -1,9 +1,9 @@
 ﻿#include"bsmcts.h"
 
-mcts::PMove* mcts::search()
+mcts::PMove* mcts::search(PMove* pMove)
 {
 	// fout << "Is new search" << "\n";
-	int computation_budget = 2000;
+	int computation_budget = 10000;
 	if (first) {
 		Init_Prestate();
 		first = false;
@@ -25,6 +25,9 @@ mcts::PMove* mcts::search()
 	// fout << "5" << "\n";
 	prestate = opchoice(bestmove);
 	// fout << "6" << "\n";
+	// printf(" bestmove->pmove: %d %d\n", bestmove->pmove.x, bestmove->pmove.y);
+	pMove->x = bestmove->pmove.x;
+	pMove->y = bestmove->pmove.y;
 	return &bestmove->pmove;
 }
 
