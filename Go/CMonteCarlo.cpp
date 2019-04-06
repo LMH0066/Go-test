@@ -64,18 +64,19 @@ void CMonteCarlo::createEye(PMove pMove, char color, char temp_board[][BOARD_ROW
 	}
 }
 
-void CMonteCarlo::haveEye()
+void CMonteCarlo::haveEye(char t_board[BOARD_ROWS][BOARD_ROWS])
 {
+	if (t_board == NULL) t_board = temp_board;
 	PMove temp;
 	for (temp.x = 1; temp.x <= 9; temp.x++) {
 		for (temp.y = 1; temp.y <= 9; temp.y++) {
 			//已经判断是眼了为什么还要判断上下是否为墙？
                         //只是为了取这个眼位属于哪个颜色的棋子
 			if (isEye(temp, board)) {
-				if (temp_board[temp.x + 1][temp.y] != BORDER)
-					eye[temp_board[temp.x + 1][temp.y]]++;
+				if (t_board[temp.x + 1][temp.y] != BORDER)
+					eye[t_board[temp.x + 1][temp.y]]++;
 				else
-					eye[temp_board[temp.x - 1][temp.y]]++;
+					eye[t_board[temp.x - 1][temp.y]]++;
 			}
 		}
 	}
@@ -112,37 +113,44 @@ bool CMonteCarlo::live(PMove pMove, char color, char temp_board[][BOARD_ROWS]) {
 	return false;
 }
 
-bool CMonteCarlo::check(PMove pMove, char color)
+bool CMonteCarlo::check(PMove pMove, char color, char t_board[BOARD_ROWS][BOARD_ROWS])
 {
+	if (t_board == NULL) t_board = temp_board;
 	char temp_color;
 	PMove temp = pMove;
 	int i;
-	if (temp_board[pMove.x][pMove.y] == color)
+	if (t_board[pMove.x][pMove.y] == color)
 		return false;
-	if (temp_board[pMove.x][pMove.y] == 0) {
-		temp_board[pMove.x][pMove.y] = color;
-		if (live(pMove, color, temp_board))
+	if (t_board[pMove.x][pMove.y] == 0) {
+		t_board[pMove.x][pMove.y] = color;
+		if (live(pMove, color, t_board))
 			return true;
-		temp_board[pMove.x][pMove.y] = 0;
+		t_board[pMove.x][pMove.y] = 0;
 	}
+	/*for (int i = 1; i < 10; i++) {
+		for (int j = 1; j < 10; j++) {
+			printf("%d ", temp_board[i][j]);
+		}
+		printf("\n");
+	}*/
 	if (board_know[pMove.x][pMove.y] < 2) {
-		temp_color = temp_board[pMove.x][pMove.y];
-		temp_board[pMove.x][pMove.y] = color;
+		temp_color = t_board[pMove.x][pMove.y];
+		t_board[pMove.x][pMove.y] = color;
 		for (i = -1; i <= 1; i += 2) {
 			temp.x = pMove.x + i;
-			if (temp_board[temp.x][temp.y] != color && !live(temp, color % 2 + 1, temp_board) && temp_board[temp.x][temp.y] != BORDER) {
-				temp_board[pMove.x][pMove.y] = color % 2 + 1;
+			if (t_board[temp.x][temp.y] != color && !live(temp, color % 2 + 1, t_board) && t_board[temp.x][temp.y] != BORDER) {
+				t_board[pMove.x][pMove.y] = color % 2 + 1;
 				return true;
 			}
 			temp.x = pMove.x;
 			temp.y = pMove.y + i;
-			if (temp_board[temp.x][temp.y] != color && !live(temp, color % 2 + 1, temp_board) && temp_board[temp.x][temp.y] != BORDER) {
-				temp_board[pMove.x][pMove.y] = color % 2 + 1;
+			if (t_board[temp.x][temp.y] != color && !live(temp, color % 2 + 1, t_board) && t_board[temp.x][temp.y] != BORDER) {
+				t_board[pMove.x][pMove.y] = color % 2 + 1;
 				return true;
 			}
 			temp.y = pMove.y;
 		}
-		temp_board[pMove.x][pMove.y] = temp_color;
+		t_board[pMove.x][pMove.y] = temp_color;
 	}
 
 	return false;

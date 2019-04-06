@@ -35,15 +35,16 @@ public:
 		void	compute_ucb();				//ucb值 
 		void	compute_pro();				//对手预测中的可能性 
 	};
+	~mcts();
 	bool first = true;
 	node history;							//当前树搜索过程中的结点 		
 	char tree_board[BOARD_ROWS][BOARD_ROWS];//树搜索过程中所走的棋盘每次迭代调用board_copy更新 
-	state *p;
 	state *prestate;	//指针						//当前根信念状态
+	state *ancestor;
 	void  new_node(state &cstate);//done
 	virtual PMove *search();//指针			//核心调用函数，cstate为当前处理的信念状态 
 	state *new_state(state &cstate, PMove smove);//done//函数传值问题 
-	void back_up(state *cstate, bool result);//指针//回溯函数 
+	void back_up(state **cstate, bool result);//指针//回溯函数 
 	state *mychoice(state &cstate);	//done		//我对于信念状态转移的选择 
 	state *opchoice(state &cstate);	//done		//对手对于信念状态转移的选择 
 	void expand(state **cstate);	//指针			//从根信念状态扩张，包含选择与拓展 

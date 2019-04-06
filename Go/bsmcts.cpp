@@ -15,14 +15,10 @@ mcts::PMove* mcts::search()
 		tree_board[prestate->pmove.x][prestate->pmove.y] = prestate->color;
 		expand(&prestate);
 		result = simulate(*prestate);
-		back_up(prestate, result);
+		back_up(&prestate, result);
 	}
 	state *bestmove = choosebest();
 	prestate = opchoice(*bestmove);
-	if (p) {
-		delete p;
-		p = NULL;
-	}
 	return &bestmove->pmove;
 }
 
@@ -73,7 +69,7 @@ void mcts::expand(state **cstate)
 			for (temp.y = 1; temp.y <= 9; temp.y++) {
 				if (tree_board[temp.x][temp.y] == 0) {
 					num--;
-					if (num <= 1 && check(temp, (*cstate)->color % 2 + 1) && unexplored(*(*cstate), temp)) {
+					if (num <= 1 && check(temp, (*cstate)->color % 2 + 1, tree_board) && unexplored(*(*cstate), temp)) {
 						flag = 1;
 						tree_board[temp.x][temp.y] = (*cstate)->color % 2 + 1;
 						stone_num[(*cstate)->color % 2 + 1] ++;
@@ -84,24 +80,22 @@ void mcts::expand(state **cstate)
 			}
 		}
 	}
-	if (chosen(*(*cstate), temp) == -1)
+	int id = chosen(*(*cstate), temp);
+	if (id == -1)
 	{
 		(*cstate) = new_state(*(*cstate), temp);
-		new_node(*(*cstate));
+		// new_node(*(*cstate));
 	}
-	else
-		new_node(*(*cstate));
+	else if(unexplored(*(*cstate), temp)) new_node((*cstate)->child_state[id]);
 }
 
 
 double mcts::simulate(state &cstate)
 {
-	int result;
+	int result = 0;
 	int stone_num[4] = { 0 };
-	int know;
 	char temp_board[BOARD_ROWS][BOARD_ROWS];
-	know = player[myColor].know;
-	result = 0;
+	int know = player[myColor].know;
 	for (int i = 0; i <= 10; i++) {
 		for (int j = 0; j <= 10; j++) {
 			temp_board[i][j] = tree_board[i][j];
@@ -119,7 +113,7 @@ double mcts::simulate(state &cstate)
 			for (temp.y = 1; temp.y <= 9; temp.y++) {
 				if (temp_board[temp.x][temp.y] == 0) {
 					num--;
-					if (num == 1 && check(temp, opColor)) {
+					if (num == 1 && check(temp, opColor, temp_board)) {
 						temp_board[temp.x][temp.y] = opColor;
 						stone_num[opColor] ++;
 						know++;
@@ -136,15 +130,15 @@ double mcts::simulate(state &cstate)
 }
 
 
-void mcts::back_up(state *cstate, bool result)
+void mcts::back_up(state **cstate, bool result)
 {
-	cstate->visit_times++;
-	cstate->compute_va(result, myColor);
-	while (cstate != prestate)
+	(*cstate)->visit_times++;
+	(*cstate)->compute_va(result, myColor);
+	while ((*cstate) != ancestor)
 	{
-		cstate = cstate->parent_state;
-		cstate->visit_times++;
-		cstate->compute_va(result, myColor);
+		(*cstate) = (*cstate)->parent_state;
+		(*cstate)->visit_times++;
+		(*cstate)->compute_va(result, myColor);
 	}
 }
 
@@ -255,13 +249,19 @@ void mcts::board_copy()
 
 mcts::state* mcts::new_state(state &cstate, PMove smove)
 {
-	state *newstate;
-	newstate = new state;
+	state *newstate = new state;
 	newstate->color = cstate.color % 2 + 1;
 	newstate->pmove = smove;
 	newstate->parent_state = &cstate;
+	newstate->prenode.push_back(history);
 	cstate.child_state.push_back(*newstate);
 	return newstate;
+}
+
+mcts::~mcts()
+{
+	delete ancestor;
+	ancestor = NULL;
 }
 
 void mcts::new_node(state &cstate)//是否保存父子关系创建？ 
@@ -271,6 +271,7 @@ void mcts::new_node(state &cstate)//是否保存父子关系创建？
 
 bool mcts::is_all_expand(state &cstate)
 {
+	int ch_si = 0;
 	int chess_color[3] = { 0 };
 	for (int i = 1; i < 10; i++)
 		for (int j = 1; j < 10; j++)
@@ -278,8 +279,10 @@ bool mcts::is_all_expand(state &cstate)
 			if (tree_board[i][j] == myColor) chess_color[myColor]++;
 			if (tree_board[i][j] == opColor) chess_color[opColor]++;
 		}
-	printf("child_state.size: %d\nchess_color: %d\nplayer[cstate.color].total: %d", cstate.child_state.size(), chess_color[cstate.color % 2 + 1], player[cstate.color].total);
-	if (cstate.child_state.size() + chess_color[cstate.color % 2 + 1] + player[cstate.color].total >= 81) return 1;
+	if (cstate.child_state.empty())ch_si = 0;
+	else ch_si = cstate.child_state.size();
+	// printf("child_state.size: %d\nchess_color: %d\nplayer[cstate.color].total: %d", cstate.child_state.size(), chess_color[cstate.color % 2 + 1], player[cstate.color].total);
+	if (ch_si + chess_color[cstate.color % 2 + 1] + player[cstate.color].total >= 81) return 1;
 	else return 0;
 }
 
@@ -288,9 +291,8 @@ int mcts::MCMove(char color, int stone_num[4], char temp_board[BOARD_ROWS][BOARD
 {
 	int num, flag, take_num, out = 0;
 	PMove temp;
-	int eye[4];
 	memset(eye, 0, sizeof(eye));
-	haveEye();
+	haveEye(temp_board);
 	while (1) {
 		if (stone_num[1] + stone_num[2] + eye[1] + eye[2] >= 81)
 			break;
@@ -305,7 +307,7 @@ int mcts::MCMove(char color, int stone_num[4], char temp_board[BOARD_ROWS][BOARD
 					num--;
 					if (num <= 1) {
 						//printf("1\n");
-						if (check(temp, color)) {
+						if (check(temp, color, temp_board)) {
 							flag = 1;
 							//printf("2\n");
 							temp_board[temp.x][temp.y] = color;
@@ -348,21 +350,25 @@ int mcts::MCMove(char color, int stone_num[4], char temp_board[BOARD_ROWS][BOARD
 
 void mcts::Init_Prestate()
 {
-	p = new state();
+	ancestor = new state();
+	ancestor->color = opColor;
 	for (int i = 1; i < 10; i++) {
 		int num = 0;
 		for (int j = 1; j < 10; j++) {
-			if (board[i][j + 1] == opColor || board[i][j - 1] == opColor || board[i + 1][j] == opColor || board[i - 1][j] == opColor) {
-				if (num == 1)continue;
+			if (board[i][j] != myColor && (board[i][j + 1] == opColor || board[i][j - 1] == opColor || board[i + 1][j] == opColor || board[i - 1][j] == opColor)) {
+				if (num == 1) {
+					num = 0;
+					continue;
+				}
 				else {
 					num++;
 					node m;
 					m.nmove.x = i;
 					m.nmove.y = j;
-					p->prenode.push_back(m);
+					ancestor->prenode.push_back(m);
 				}
 			}
 		}
 	}
-	prestate = p;
+	prestate = ancestor;
 }

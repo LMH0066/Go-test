@@ -14,9 +14,9 @@ public:
 	void	boardCopy();
 	bool	isEye(PMove pMove, char temp_board[][BOARD_ROWS]);
 	void	createEye(PMove pMove, char color, char temp_board[][BOARD_ROWS]);
-	void	haveEye();
+	void	haveEye(char t_board[BOARD_ROWS][BOARD_ROWS] = NULL);
 	bool	live(PMove pMove, char color, char temp_board[][BOARD_ROWS]);
-	bool	check(PMove pMove, char color);
+	bool	check(PMove pMove, char color, char t_board[BOARD_ROWS][BOARD_ROWS] = NULL);
 	int		removed(PMove pMove, char color, char temp_board[][BOARD_ROWS]);
 	int		MonteCarloMove(char color);
 	virtual int     clean(PMove pMove, char color, char temp_board[][BOARD_ROWS]);
