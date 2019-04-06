@@ -2,7 +2,7 @@
 
 mcts::PMove* mcts::search()
 {
-	fout << "Is new search" << "\n";
+	// fout << "Is new search" << "\n";
 	int computation_budget = 2000;
 	if (first) {
 		Init_Prestate();
@@ -14,11 +14,17 @@ mcts::PMove* mcts::search()
 		board_copy();//复制已知棋盘 
 		tree_board[prestate->pmove.x][prestate->pmove.y] = prestate->color;
 		expand(&prestate);
+		// fout << "1" << "\n";
 		result = simulate(*prestate);
+		// fout << "2" << "\n";
 		back_up(&prestate, result);
+		// fout << "3" << "\n";
 	}
+	// fout << "4" << "\n";
 	state *bestmove = choosebest();
+	// fout << "5" << "\n";
 	prestate = opchoice(bestmove);
+	// fout << "6" << "\n";
 	return &bestmove->pmove;
 }
 
@@ -154,7 +160,9 @@ void mcts::back_up(state **cstate, bool result)
 
 mcts::state* mcts::mychoice(state *cstate)
 {
-	if(cstate != ancestor) cstate->compute_ucb();
+	for (int i = 0; i < cstate->child_state.size(); i++) {
+		cstate->child_state[i]->compute_ucb();
+	}
 	state *best_next = cstate->child_state[0];
 	double best_ucb = cstate->child_state[0]->ucb;
 	for (int i = 0; i < cstate->child_state.size(); ++i)
