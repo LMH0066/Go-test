@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <time.h>
 #include <fstream>
+#include <iostream>
+using namespace std;
 
 extern std::ofstream fout;
 
@@ -23,5 +25,6 @@ public:
 	virtual bool	nbMove(PMove* pMove) = 0;			//高级生成招法
 	virtual double	GetScore(int x, int y);
 	virtual int     clean(PMove pMove, char color, char temp_board[][BOARD_ROWS]) = 0;
+	virtual PMove	*search();
 };
 

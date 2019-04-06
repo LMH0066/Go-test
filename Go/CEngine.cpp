@@ -404,6 +404,13 @@ double CEngine::GetScore(int x, int y) {
 	return score;
 }
 
+CEngine::PMove* CEngine::search()
+{
+	fout << "Is old search" << "\n";
+	PMove p{ 0, 0, 0 };
+	return &p;
+}
+
 void CEngine::Move()
 {
 	if (SearchMove(&bestMove))
@@ -560,11 +567,18 @@ bool CEngine::GetGoMove(PMove*	pMove)
 //若蒙特卡罗方法得到的估值大于置信值believe_point即2000，则选择蒙特卡罗的最佳走法，否则调用GetGomove利用条件估值重新走子
 bool CEngine::SearchMove(PMove*	pMove)
 {
+	fout << "search begin" << "\n";
 	int start = clock();
-	if (player[myColor].know > 3 && nbMove(pMove)) {
+	if (player[myColor].know > 3 /*&& nbMove(pMove)*/) {
+		pMove = search();
 		int end = clock();
 		printf("ms: %d\n", end - start);
 		return true;
 	}
 	return GetGoMove(pMove);
+	/*pMove = &(search());
+	int end = clock();
+	fout << "search end" << "\n";
+	printf("ms: %d\n", end - start);
+	return true;*/
 }

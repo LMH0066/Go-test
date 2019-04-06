@@ -1,10 +1,10 @@
 #include "CEngine.h"
-#include "CMonteCarlo.h"
+#include "bsmcts.h"
 #include <windows.h>
 
 int main()
 {
-	CMonteCarlo test;
+	mcts test;
 	char	msg[100];
 	int		numTi = 0;
 	// int		x, y;
@@ -12,8 +12,7 @@ int main()
 
 	while (1)
 	{
-
-		fout.open("D:/1.txt", std::ios::app);
+		fout.open("D:/2.txt", std::ios::app);
 		Sleep(50);
 		fflush(stdin);
 		Sleep(50);

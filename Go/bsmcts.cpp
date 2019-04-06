@@ -1,20 +1,29 @@
 ﻿#include"bsmcts.h"
 
-mcts::PMove mcts::search()
+mcts::PMove* mcts::search()
 {
+	fout << "Is new search" << "\n";
 	int computation_budget = 2000;
+	if (first) {
+		Init_Prestate();
+		first = false;
+	}
 	for (int i = 0; i < computation_budget; i++)
 	{
 		bool result;//result为单次模拟结果 
 		board_copy();//复制已知棋盘 
 		tree_board[prestate->pmove.x][prestate->pmove.y] = prestate->color;
-		expand(prestate);
+		expand(&prestate);
 		result = simulate(*prestate);
 		back_up(prestate, result);
 	}
 	state *bestmove = choosebest();
-	prestate = &opchoice(*bestmove);
-	return bestmove->pmove;
+	prestate = opchoice(*bestmove);
+	if (p) {
+		delete p;
+		p = NULL;
+	}
+	return &bestmove->pmove;
 }
 
 mcts::node::node()
@@ -31,28 +40,28 @@ mcts::state::state()
 	parent_state = NULL;
 }
 
-void mcts::expand(state *cstate)
+void mcts::expand(state **cstate)
 {
 	srand(rand()*(int)time(0));
 	int num;
-	int stone_num[4];
+	int stone_num[4] = { 0 };
 	stone_num[myColor] = player[myColor].total;
 	stone_num[opColor] = player[opColor].total;
-	num = rand() % (cstate->prenode.size());
-	history = cstate->prenode[num];//创建根信念状态历史 
-	while (is_all_expand(*cstate))
+	num = rand() % ((*cstate)->prenode.size());
+	history = (*cstate)->prenode[num];//创建根信念状态历史 
+	while (is_all_expand(*(*cstate)))
 	{
-		if (cstate->color == opColor)
+		if ((*cstate)->color == opColor)
 		{
-			cstate = &mychoice(*cstate);
-			tree_board[cstate->pmove.x][cstate->pmove.y] = cstate->color;
-			stone_num[cstate->color]++;
+			*cstate = mychoice(*(*cstate));
+			tree_board[(*cstate)->pmove.x][(*cstate)->pmove.y] = (*cstate)->color;
+			stone_num[(*cstate)->color]++;
 		}
-		if (cstate->color == myColor)
+		if ((*cstate)->color == myColor)
 		{
-			cstate = &opchoice(*cstate);
-			tree_board[cstate->pmove.x][cstate->pmove.y] = cstate->color;
-			stone_num[cstate->color]++;
+			(*cstate) = opchoice(*(*cstate));
+			tree_board[(*cstate)->pmove.x][(*cstate)->pmove.y] = (*cstate)->color;
+			stone_num[(*cstate)->color]++;
 		}
 	}
 	PMove temp;//临时用于拓展子状态 
@@ -64,10 +73,10 @@ void mcts::expand(state *cstate)
 			for (temp.y = 1; temp.y <= 9; temp.y++) {
 				if (tree_board[temp.x][temp.y] == 0) {
 					num--;
-					if (num <= 1 && check(temp, cstate->color % 2 + 1) && unexplored(*cstate, temp)) {
+					if (num <= 1 && check(temp, (*cstate)->color % 2 + 1) && unexplored(*(*cstate), temp)) {
 						flag = 1;
-						tree_board[temp.x][temp.y] = cstate->color % 2 + 1;
-						stone_num[cstate->color % 2 + 1] ++;
+						tree_board[temp.x][temp.y] = (*cstate)->color % 2 + 1;
+						stone_num[(*cstate)->color % 2 + 1] ++;
 						temp.x = 10;
 						break;
 					}
@@ -75,20 +84,20 @@ void mcts::expand(state *cstate)
 			}
 		}
 	}
-	if (chosen(*cstate, temp) == -1)
+	if (chosen(*(*cstate), temp) == -1)
 	{
-		cstate = &new_state(*cstate, temp);
-		new_node(*cstate);
+		(*cstate) = new_state(*(*cstate), temp);
+		new_node(*(*cstate));
 	}
 	else
-		new_node(*cstate);
+		new_node(*(*cstate));
 }
 
 
 double mcts::simulate(state &cstate)
 {
 	int result;
-	int stone_num[4];
+	int stone_num[4] = { 0 };
 	int know;
 	char temp_board[BOARD_ROWS][BOARD_ROWS];
 	know = player[myColor].know;
@@ -123,6 +132,7 @@ double mcts::simulate(state &cstate)
 	}
 	//PrintTempBoard();
 	result = MCMove(cstate.color % 2 + 1, stone_num, temp_board);//随机走子,改版MonteCarloMove函数 
+	return result;
 }
 
 
@@ -138,32 +148,32 @@ void mcts::back_up(state *cstate, bool result)
 	}
 }
 
-mcts::state mcts::mychoice(state &cstate)
+mcts::state* mcts::mychoice(state &cstate)
 {
 	cstate.compute_ucb();
-	state best_next = cstate.child_state[0];
+	state *best_next = &cstate.child_state[0];
 	double best_ucb = cstate.child_state[0].ucb;
 	for (int i = 0; i < cstate.child_state.size(); ++i)
 	{
 		if (cstate.child_state[i].ucb > best_ucb)
 		{
-			best_next = cstate.child_state[i];
+			best_next = &cstate.child_state[i];
 			best_ucb = cstate.child_state[i].ucb;
 		}
 	}
 	return best_next;
 }
 
-mcts::state mcts::opchoice(state &cstate)
+mcts::state *mcts::opchoice(state &cstate)
 {
 	cstate.compute_pro();
-	state best_next = cstate.child_state[0];
+	state *best_next = &cstate.child_state[0];
 	double best_pro = cstate.child_state[0].pro;
 	for (int i = 0; i < cstate.child_state.size(); ++i)
 	{
 		if (cstate.child_state[i].vastate > best_pro)
 		{
-			best_next = cstate.child_state[i];
+			best_next = &cstate.child_state[i];
 			best_pro = cstate.child_state[i].pro;
 		}
 	}
@@ -220,7 +230,7 @@ void mcts::state::compute_va(bool result, int mycolor)
 void mcts::state::compute_pro()
 {
 	double lamuda = 0.5;
-	double sum;
+	double sum = 0;
 	for (int i = 0; i < (parent_state->child_state).size(); ++i)
 	{
 		sum += exp(lamuda*(parent_state->child_state[i].vastate));
@@ -243,13 +253,14 @@ void mcts::board_copy()
 	}
 }
 
-mcts::state mcts::new_state(state &cstate, PMove smove)
+mcts::state* mcts::new_state(state &cstate, PMove smove)
 {
-	state newstate;
-	newstate.color = cstate.color % 2 + 1;
-	newstate.pmove = smove;
-	newstate.parent_state = &cstate;
-	cstate.child_state.push_back(newstate);
+	state *newstate;
+	newstate = new state;
+	newstate->color = cstate.color % 2 + 1;
+	newstate->pmove = smove;
+	newstate->parent_state = &cstate;
+	cstate.child_state.push_back(*newstate);
 	return newstate;
 }
 
@@ -260,13 +271,14 @@ void mcts::new_node(state &cstate)//是否保存父子关系创建？
 
 bool mcts::is_all_expand(state &cstate)
 {
-	int chess_color[3];
-	for (int i = 0; i < 10; i++)
-		for (int j = 0; j < 10; j++)
+	int chess_color[3] = { 0 };
+	for (int i = 1; i < 10; i++)
+		for (int j = 1; j < 10; j++)
 		{
 			if (tree_board[i][j] == myColor) chess_color[myColor]++;
 			if (tree_board[i][j] == opColor) chess_color[opColor]++;
 		}
+	printf("child_state.size: %d\nchess_color: %d\nplayer[cstate.color].total: %d", cstate.child_state.size(), chess_color[cstate.color % 2 + 1], player[cstate.color].total);
 	if (cstate.child_state.size() + chess_color[cstate.color % 2 + 1] + player[cstate.color].total >= 81) return 1;
 	else return 0;
 }
@@ -332,4 +344,25 @@ int mcts::MCMove(char color, int stone_num[4], char temp_board[BOARD_ROWS][BOARD
 	//if (stone_num[myColor] + eye[myColor] < stone_num[myColor % 2 + 1] + eye[myColor % 2 + 1])
 		//return -1;
 	return 0;
+}
+
+void mcts::Init_Prestate()
+{
+	p = new state();
+	for (int i = 1; i < 10; i++) {
+		int num = 0;
+		for (int j = 1; j < 10; j++) {
+			if (board[i][j + 1] == opColor || board[i][j - 1] == opColor || board[i + 1][j] == opColor || board[i - 1][j] == opColor) {
+				if (num == 1)continue;
+				else {
+					num++;
+					node m;
+					m.nmove.x = i;
+					m.nmove.y = j;
+					p->prenode.push_back(m);
+				}
+			}
+		}
+	}
+	prestate = p;
 }
