@@ -116,11 +116,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="bsmcts.h" />
     <ClInclude Include="CEngine.h" />
     <ClInclude Include="CMonteCarlo.h" />
     <ClInclude Include="Define.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="bsmcts.cpp" />
     <ClCompile Include="CEngine.cpp" />
     <ClCompile Include="CMonteCarlo.cpp" />
     <ClCompile Include="Define.cpp" />
