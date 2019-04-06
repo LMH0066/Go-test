@@ -39,11 +39,11 @@ class mcts :
 		char tree_board[BOARD_ROWS][BOARD_ROWS];//树搜索过程中所走的棋盘每次迭代调用board_copy更新 
 		state *prestate;	//指针						//当前根信念状态
 		void  new_node(state &cstate);//done
-		PMove search();//指针			//核心调用函数，cstate为当前处理的信念状态 
-		state new_state(state &cstate,PMove smove);//done//函数传值问题 
+		virtual PMove *search();//指针			//核心调用函数，cstate为当前处理的信念状态 
+		state *new_state(state &cstate,PMove smove);//done//函数传值问题 
 		void back_up(state *cstate,bool result);//指针//回溯函数 
-		state mychoice(state &cstate);	//done		//我对于信念状态转移的选择 
-		state opchoice(state &cstate);	//done		//对手对于信念状态转移的选择 
+		state *mychoice(state &cstate);	//done		//我对于信念状态转移的选择 
+		state *opchoice(state &cstate);	//done		//对手对于信念状态转移的选择 
 		void expand(state *cstate);	//指针			//从根信念状态扩张，包含选择与拓展 
 		double simulate(state &cstate);	//done		//模拟 
 		state *choosebest();						//最终选择收益最大的走法 
