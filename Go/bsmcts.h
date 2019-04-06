@@ -1,51 +1,55 @@
 #include<iostream>
-#include"CEngine.h"
 #include"CMonteCarlo.h"
 #include<cmath>
 #include<vector> 
 using namespace std;
-class node
+class mcts :
+	public CMonteCarlo
 {
 	public:
-		node();
-		double value;
-		node *parent_node;//ÓĞÃ»ÓĞ±ØÒª¼ÇÂ¼½ÚµãµÄ¸¸×Ó¹ØÏµ£¿ 
-		vector<node> child_node;
-		bool is_all_expand(); 
-}
-class state
-{
-	public:
-		state();
-		int color;
-		PMove pmove;//ĞÅÄî×´Ì¬¶ÔÓ¦µÄ×ß·¨ 
-		state *parent_state; //¸¸ĞÅÄî×´Ì¬ 
-		vector<node> prenode;//µ±Ç°ÓµÓĞµÄ½Úµã 
-		vector<state> child_state;//×ÓĞÅÄî×´Ì¬ 
-		double ucb;
-		double vastate;
-		double pro;
-		int visit_times;
-		void new_node(state &cstate);
-		void compute_va(bool result);//ÊÕÒæ 
-		void compute_ucb();//ucbÖµ 
-		void compute_pro();//¶ÔÊÖÔ¤²âÖĞµÄ¿ÉÄÜĞÔ 
-}
-class mcts
-{
-	public:
-		char tree_board[BOARD_ROWS][BOARD_ROWS];//Ê÷ËÑË÷¹ı³ÌÖĞËù×ßµÄÆåÅÌÃ¿´Îµü´úµ÷ÓÃboard_copy¸üĞÂ 
-		state prestate;//µ±Ç°¸ùĞÅÄî×´Ì¬ 
-		PMove search(state &cstate);//ºËĞÄµ÷ÓÃº¯Êı£¬cstateÎªµ±Ç°´¦ÀíµÄĞÅÄî×´Ì¬ 
-		state new_state(state &cstate,PMove smove);//º¯Êı´«ÖµÎÊÌâ 
-		void back_up(state &cstate,bool result);//»ØËİº¯Êı 
-		state mychoice(state &cstate);//ÎÒ¶ÔÓÚĞÅÄî×´Ì¬×ªÒÆµÄÑ¡Ôñ 
-		state opchoice(state &cstate);//¶ÔÊÖ¶ÔÓÚĞÅÄî×´Ì¬×ªÒÆµÄÑ¡Ôñ 
-		void expand(state &cstate);//´Ó¸ùĞÅÄî×´Ì¬À©ÕÅ£¬°üº¬Ñ¡ÔñÓëÍØÕ¹ 
-		double simulate(state &cstate);//Ä£Äâ 
-		PMove choosebest();//×îÖÕÑ¡ÔñÊÕÒæ×î´óµÄ×ß·¨ 
-		bool unexplored(state &cstate,PMove temp);//ÅĞ¶ÏÎ´½¨Á¢¸ÃĞÂ½Úµã 
-		int chosen(state &cstate,PMove temp);//ÅĞ¶ÏÒÑ½¨Á¢¸ÃĞÅÄî×´Ì¬£¬·µ»Ø×´Ì¬±àºÅ£¬Î´½¨Á¢Ôò·µ»Ø-1 
-		void board_copy();//½«ÒÑ×ßÆåÅÌ¸´ÖÆµ½tree_board
-		int MCMove(char color,int stone_num[4],char temp_board[BOARD_ROWS][BOARD_ROWS]);//¾Í¼ÓÁË¸ö´«Öµ£¬ÒÔ¼°·µ»ØÖµÎÒ°ÑËü¸Ä³ÉÖ»ÓĞ1ºÍ0 
-}
+		class node
+		{
+		public:
+			node();
+			double	value;
+			PMove   nmove;
+			node	*parent_node;		//æœ‰æ²¡æœ‰å¿…è¦è®°å½•èŠ‚ç‚¹çš„çˆ¶å­å…³ç³»ï¼Ÿ 
+			vector<node>	child_node;
+		};
+
+		class state
+		{
+		public:
+			state();
+			int		color;
+			int		visit_times;
+			double	ucb;
+			double	vastate;
+			double	pro;
+			PMove	pmove;						//ä¿¡å¿µçŠ¶æ€å¯¹åº”çš„èµ°æ³• 
+			state	*parent_state;				//çˆ¶ä¿¡å¿µçŠ¶æ€ 
+			vector<node>	prenode;			//å½“å‰æ‹¥æœ‰çš„æ ¹å†å² 
+			vector<state>	child_state;		//å­ä¿¡å¿µçŠ¶æ€ 
+
+			void	compute_va(bool result,int mycolor);	//æ”¶ç›Š 
+			void	compute_ucb();				//ucbå€¼ 
+			void	compute_pro();				//å¯¹æ‰‹é¢„æµ‹ä¸­çš„å¯èƒ½æ€§ 
+		};
+        node history;							//å½“å‰æ ‘æœç´¢è¿‡ç¨‹ä¸­çš„ç»“ç‚¹ 		
+		char tree_board[BOARD_ROWS][BOARD_ROWS];//æ ‘æœç´¢è¿‡ç¨‹ä¸­æ‰€èµ°çš„æ£‹ç›˜æ¯æ¬¡è¿­ä»£è°ƒç”¨board_copyæ›´æ–° 
+		state *prestate;	//æŒ‡é’ˆ						//å½“å‰æ ¹ä¿¡å¿µçŠ¶æ€
+		void  new_node(state &cstate);//done
+		PMove search();//æŒ‡é’ˆ			//æ ¸å¿ƒè°ƒç”¨å‡½æ•°ï¼Œcstateä¸ºå½“å‰å¤„ç†çš„ä¿¡å¿µçŠ¶æ€ 
+		state new_state(state &cstate,PMove smove);//done//å‡½æ•°ä¼ å€¼é—®é¢˜ 
+		void back_up(state *cstate,bool result);//æŒ‡é’ˆ//å›æº¯å‡½æ•° 
+		state mychoice(state &cstate);	//done		//æˆ‘å¯¹äºä¿¡å¿µçŠ¶æ€è½¬ç§»çš„é€‰æ‹© 
+		state opchoice(state &cstate);	//done		//å¯¹æ‰‹å¯¹äºä¿¡å¿µçŠ¶æ€è½¬ç§»çš„é€‰æ‹© 
+		void expand(state *cstate);	//æŒ‡é’ˆ			//ä»æ ¹ä¿¡å¿µçŠ¶æ€æ‰©å¼ ï¼ŒåŒ…å«é€‰æ‹©ä¸æ‹“å±• 
+		double simulate(state &cstate);	//done		//æ¨¡æ‹Ÿ 
+		state *choosebest();						//æœ€ç»ˆé€‰æ‹©æ”¶ç›Šæœ€å¤§çš„èµ°æ³• 
+		bool unexplored(state &cstate,PMove temp);//done//åˆ¤æ–­æœªå»ºç«‹è¯¥æ–°èŠ‚ç‚¹ 
+		int chosen(state &cstate,PMove temp);	//done//åˆ¤æ–­å·²å»ºç«‹è¯¥ä¿¡å¿µçŠ¶æ€ï¼Œè¿”å›çŠ¶æ€ç¼–å·ï¼Œæœªå»ºç«‹åˆ™è¿”å›-1 
+		void board_copy();						//å°†å·²èµ°æ£‹ç›˜å¤åˆ¶åˆ°tree_board
+		bool is_all_expand(state &cstate);//done
+		int MCMove(char color,int stone_num[4],char temp_board[BOARD_ROWS][BOARD_ROWS]);//å°±åŠ äº†ä¸ªä¼ å€¼ï¼Œä»¥åŠè¿”å›å€¼æˆ‘æŠŠå®ƒæ”¹æˆåªæœ‰1å’Œ0
+};
