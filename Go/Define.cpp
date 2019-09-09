@@ -37,15 +37,15 @@ void Define::BoardShow() {
 		printf("%2d", i);
 		for (int j = 1; j < 10; j++)
 		{
-			switch (board[i][j])
+			switch (board[j][i])
 			{
 			case 0:
 				printf(" -");
 				break;
-			case 1:
+			case BLACK:
 				printf(" X");
 				break;
-			case 2:
+			case WHITE:
 				printf(" O");
 				break;
 			}

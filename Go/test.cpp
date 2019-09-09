@@ -23,8 +23,8 @@ int main()
 		{
 			fflush(stdin);
 			test.MoveSucceed();
-			if(test.player[test.myColor].know > 10)
-				test.prestate = test.opchoice(test.bestmove);
+			/*if(test.player[test.myColor].know > 5)
+				test.prestate = test.opchoice(test.bestmove);*/
 		}
 		else if (strcmp(msg, "refuse") == 0)
 		{
@@ -102,7 +102,7 @@ int main()
 		else if (strcmp(msg, "name?") == 0)
 		{
 			fflush(stdin);
-			printf("name BIT\n");
+			printf("name YuckyGo\n");
 			fflush(stdout);
 		}
 		else if (strcmp(msg, "end") == 0)

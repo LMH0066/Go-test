@@ -438,6 +438,7 @@ void CEngine::MoveFail()
 	player[myColor].know++;
 	board[bestMove.x][bestMove.y] = opColor;
 	board_know[bestMove.x][bestMove.y]++;
+	
 }
 
 bool CEngine::GetGoMove(PMove*	pMove)
@@ -575,7 +576,7 @@ bool CEngine::SearchMove(PMove*	pMove)
 		printf("ms: %d\n", end - start);
 		return true;
 	}*/
-	if (player[myColor].know > 10 /*&& nbMove(pMove)*/) {
+	if (player[myColor].know > 5 /*&& nbMove(pMove)*/) {
 		search(pMove);
 		// printf("pMove: %d %d\n", pMove->x, pMove->y);
 		int end = clock();

@@ -36,6 +36,8 @@ public:
 		void	compute_pro();				//对手预测中的可能性 
 	};
 	~mcts();
+	int computation_budget = 4000;			//循环次数
+	double va_board[BOARD_ROWS][BOARD_ROWS][2] = { 0 };
 	bool first = true;
 	node history;							//当前树搜索过程中的结点 		
 	char tree_board[BOARD_ROWS][BOARD_ROWS];//树搜索过程中所走的棋盘每次迭代调用board_copy更新 
@@ -47,7 +49,7 @@ public:
 	void back_up(state **cstate, bool result);//指针//回溯函数 
 	state *mychoice(state *cstate);	//done		//我对于信念状态转移的选择 
 	state *opchoice(state *cstate);	//done		//对手对于信念状态转移的选择 
-	void expand(state **cstate);	//指针			//从根信念状态扩张，包含选择与拓展 
+	bool expand(state **cstate);	//指针			//从根信念状态扩张，包含选择与拓展 
 	double simulate(state &cstate);	//done		//模拟 
 	state *choosebest();						//最终选择收益最大的走法 
 	bool unexplored(state *cstate, PMove temp);//done//判断未建立该新节点 
@@ -57,4 +59,7 @@ public:
 	int MCMove(char color, int stone_num[4], char temp_board[BOARD_ROWS][BOARD_ROWS]);//就加了个传值，以及返回值我把它改成只有1和0
 	void Init_Prestate();
 	state *bestmove;
+
+	char Forbidden[BOARD_ROWS][BOARD_ROWS];
+
 };

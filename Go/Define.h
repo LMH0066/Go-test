@@ -41,4 +41,49 @@ public:
 	GPlayer player[3];						//白和黑棋,记录各方的走子总数和知道对方的子数
 	void	BoardShow();
 	void	InitGame();
+
+	bool IsInBoard(int x, int y, char t_board[BOARD_ROWS][BOARD_ROWS] = NULL) {
+		if (t_board == NULL)
+		{
+			t_board = board;
+		}
+		switch (t_board[x][y])
+		{
+		case BORDER:
+		case NOSTONE:
+			return false;
+		default:
+			return true;
+		}
+	}
+	void PrintTempBoard(char m_board[][BOARD_ROWS]) {
+		printf("temp_board\n  ");
+		for (int j = 1; j < 10; j++)
+		{
+			printf("%2d", j);
+		}
+		printf("\n");
+
+		for (int i = 1; i < 10; i++)
+		{
+			printf("%2d", i);
+			for (int j = 1; j < 10; j++)
+			{
+				switch (m_board[j][i])
+				{
+				case 0:
+					printf(" -");
+					break;
+				case BLACK:
+					printf(" X");
+					break;
+				case WHITE:
+					printf(" O");
+					break;
+				}
+			}
+			printf("\n");
+		}
+		return;
+	}
 };
